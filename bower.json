@@ -1,0 +1,19 @@
+{
+  "name": "boilerplate",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-console": "^1.0.0",
+    "purescript-profunctor-lenses": "^1.0.0",
+    "purescript-node-postgres": "FrigoEU/purescript-node-postgres#master",
+    "purescript-vdom-worker": "FrigoEU/purescript-vdom-worker#master",
+    "purescript-endpoints-express": "*"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^1.0.0"
+  }
+}
