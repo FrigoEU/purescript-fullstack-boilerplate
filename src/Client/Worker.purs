@@ -1,52 +1,58 @@
-module Worker where
+module Client.Worker where
 
-import Client.Dispatch (AppEffects, Dispatch)
+import Client.Action (actionsChannel, AppEffects, update, Action, effects)
+import Client.Channels (patchesChannel)
 import Client.Router (router)
-import Client.State (State, Route(RegisterPage), initialState, update, Action(Nav))
-import Client.UI (hashChangedChannel, wEventsChannel, patchesChannel)
+import Client.State (initialState)
 import Control.Apply ((*>))
 import Control.Monad.Aff (later', runAff)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Console (log, CONSOLE)
+import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Ref (writeRef, readRef, newRef)
-import Data.Argonaut.Decode (decodeJson)
-import Data.Argonaut.Parser (jsonParser)
-import Data.Either (either)
+import Data.Function.Uncurried (mkFn2)
 import Data.StrMap (empty)
-import Prelude (show, void, Unit, unit, pure, ($), (>>=), (<<<), bind)
-import VirtualDOM (serializePatch, diff, props, div)
-import VirtualDOM.Worker (mkWorkerFunctionsForWEvents)
-import WebWorker.Channel (onmessageC, registerChannel, postMessageC)
+import Prelude ((<>), show, void, Unit, unit, pure, ($), (>>=), (<<<), bind)
+import VirtualDOM (FunctionSerializer, serializePatch, diff)
+import VirtualDOM.HTML (div)
+import WebWorker.Channel (registerChannel, onmessageC, postMessageC)
+
+type Dispatch = Action -> Eff AppEffects Unit
 
 main :: Eff AppEffects Unit
 main = do
-  {functionSerializer, handler} <- mkWorkerFunctionsForWEvents
-  let initial = div (props []) []
+  -- Initial render to sync DOM states with UI thread
+  let initial = div [] []
   stateRef <- newRef initialState
   treeRef <- newRef initial
+
+  -- Define dispatch function
   let dispatch act = do
         s <- readRef stateRef
+        -- Run "interpreters" update and effects
+        --   (deferred since effects can trigger new dispatch)
         let newS = update act s
-        -- effects can make new actions, so we defer it to avoid
-        -- one state update overwriting the other
-        defer 1 (effects dispatch newS act)
+        defer 1 (effects dispatch act newS)
+
+        -- Render with new State
         oldTree <- readRef treeRef
-        let newTree = router dispatch newS
+        let newTree = router newS
+
+        -- Diff, serialize and send patches
         let patches = diff oldTree newTree
-        let serializedPatches = serializePatch functionSerializer patches
+        let serializedPatches = serializePatch dummyFunctionSerializer patches
+        postMessageC patchesChannel serializedPatches
+
+        -- Save refs
         writeRef stateRef newS
         writeRef treeRef newTree
-        postMessageC patchesChannel serializedPatches
-  let reg1 = registerChannel empty wEventsChannel handler
-  let chs = registerChannel reg1 hashChangedChannel
-        (\str -> either (\_ -> dispatch (Nav RegisterPage)) (dispatch <<< Nav) (jsonParser str >>= decodeJson))
-  onmessageC chs
+  -- Register handlers for incoming messages from UI thread
+  onmessageC (registerChannel empty actionsChannel dispatch)
+
+dummyFunctionSerializer :: FunctionSerializer
+dummyFunctionSerializer = mkFn2 (\_ _ -> {prop: "", id: ""})
 
 defer :: forall a e. Int -> Eff (console :: CONSOLE | e) a -> Eff (console :: CONSOLE | e) Unit
 defer i eff = void $ runAff (log <<< show)
                             (\_ -> pure unit)
                             (later' i (liftEff eff))
-
-effects :: forall e. Dispatch -> State -> Action -> Eff (e) Unit
-effects _ _ _ = pure unit

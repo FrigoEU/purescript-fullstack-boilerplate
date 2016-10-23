@@ -1,20 +1,14 @@
 module Server.Endpoint where
 
-import Data.Argonaut.Decode (gDecodeJson, class DecodeJson)
-import Data.Argonaut.Encode (gEncodeJson, class EncodeJson)
+import Data.Either (Either)
 import Data.Endpoint (Endpoint(Endpoint))
-import Data.Generic (class Generic)
 import Data.HTTP.Method (Method(POST))
-import Model.User (SessionDetails)
+import Data.Maybe (Maybe)
+import Model.User (RegisterError, UserPass, SessionDetails)
 import Prelude (Unit)
 
-registerUser :: Endpoint Unit UserPass SessionDetails
+registerUser :: Endpoint Unit UserPass (Either RegisterError SessionDetails)
 registerUser = Endpoint {method: POST, url: "/register"}
 
-login :: Endpoint Unit UserPass SessionDetails
-login = Endpoint {method: POST, url: "/login"}
-
-newtype UserPass = UserPass {email :: String, password :: String}
-derive instance genericGetMessagesQp :: Generic UserPass
-instance encodeJsonGetMessagesQp :: EncodeJson UserPass where encodeJson = gEncodeJson
-instance decodeJsonGetMessagesQp :: DecodeJson UserPass where decodeJson = gDecodeJson
+loginUser :: Endpoint Unit UserPass (Maybe SessionDetails)
+loginUser = Endpoint {method: POST, url: "/login"}

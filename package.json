@@ -1,0 +1,48 @@
+{
+  "name": "boilerplate",
+  "version": "0.0.1",
+  "description": "",
+  "main": "pm2.js",
+  "engines": {
+    "node": "4.6.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "pulp test",
+    "start": "node pm2.js",
+    "buildserver": "pulp build --main Server.Main --to index.js",
+    "buildclient": "pulp browserify --main Client.UI --optimise --to client.js",
+    "buildworker": "pulp browserify --main Client.Worker --optimise --to worker.js",
+    "postinstall": "bower install && npm run buildserver && npm run buildclient && npm run buildworker",
+    "sqlschema": "/Applications/Postgres.app/Contents/Versions/9.4/bin/psql myapp < sql/schema.sql",
+    "sqltopurs": "sqltopurs -i sql/schema.sql -o src/Sql.purs -e sql/extra.purs",
+    "debug": "node-nightly --inspect index.js",
+    "stop": "pm2 stop all",
+    "monitor": "pm2 monit"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "express": "^4.14.0",
+    "morgan": "^1.7.0",
+    "pg": "^6.1.0",
+    "pm2": "2.0.18",
+    "vdom-as-json": "FrigoEU/vdom-as-json",
+    "vdom-serialized-patch": "FrigoEU/vdom-serialized-patch#master",
+    "virtual-dom": "^2.1.1"
+  },
+  "devDependencies": {
+    "bower": "1.7.9",
+    "purescript": "0.9.3",
+    "pulp": "9.0.1",
+    "sqltopurs": "*"
+  },
+  "keywords": [
+    "boilerplate",
+    "purescript"
+  ],
+  "author": "Simon Van Casteren",
+  "license": "GPL-3.0"
+}

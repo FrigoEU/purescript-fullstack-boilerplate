@@ -4,3 +4,7 @@
 /output/
 /.psci*
 /src/.webpack.js
+index.js
+client.js
+worker.js
+npm-debug*

@@ -1,0 +1,17 @@
+:root{
+  --color-success: green;
+  --color-error: red;
+}
+
+.has-success label{
+  color: var(--color-success);
+}
+.has-success input{
+  border-color: var(--color-success);
+}
+.has-error *{
+  color: var(--color-error);
+}
+.has-error input{
+  border-color: var(--color-error);
+}

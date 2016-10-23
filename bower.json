@@ -11,9 +11,18 @@
     "purescript-profunctor-lenses": "^1.0.0",
     "purescript-node-postgres": "FrigoEU/purescript-node-postgres#master",
     "purescript-vdom-worker": "FrigoEU/purescript-vdom-worker#master",
-    "purescript-endpoints-express": "*"
+    "purescript-endpoints-express": "FrigoEU/purescript-endpoints-express#master",
+    "purescript-node-process": "^2.0.0",
+    "purescript-exists": "^2.0.0",
+    "purescript-now": "^1.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^1.0.0"
+  },
+  "resolutions": {
+    "purescript-js-date": "^2.0.0",
+    "purescript-unsafe-coerce": "^2.0.0",
+    "purescript-argonaut-codecs": "1.1.0",
+    "purescript-dom": "^2.0.0"
   }
 }

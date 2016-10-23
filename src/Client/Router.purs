@@ -1,13 +1,14 @@
 module Client.Router where
 
-import Client.Dispatch (AppEffects, Dispatch)
+import Client.Action (AppEffects, Action)
+import Client.Page.Start (start)
 import Client.State (Route, State)
 import Control.Monad.Eff (Eff)
-import Prelude (Unit, unit, pure)
-import VirtualDOM (props, div, VTree)
+import Prelude ((>=>), (>>=), (>>>), Unit, unit, pure)
+import VirtualDOM (VTree)
 
-router :: Dispatch -> State -> VTree
-router d s = div (props []) []
+router :: State -> VTree
+router s = start s
 
-loadPage :: Dispatch -> State -> Route -> Eff AppEffects Unit
+loadPage :: (Action -> Eff AppEffects Unit) -> State -> Route -> Eff AppEffects Unit
 loadPage s _ _ = pure unit
