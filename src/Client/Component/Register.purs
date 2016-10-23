@@ -12,11 +12,11 @@ import VirtualDOM (vtext, VTree)
 import VirtualDOM.HTML (span, cl, typeP, button, form, value, name, input)
 
 register :: { email :: String
-         , password :: String
-         , password2 :: String
-         }
-         -> Async (Either RegisterError SessionDetails)
-         -> VTree
+            , password :: String
+            , password2 :: String
+            }
+            -> Async (Either RegisterError SessionDetails)
+            -> VTree
 register s as =
   form [on' submit Register_Go]
     [ withErr em (emailErrorMess as)
@@ -34,7 +34,7 @@ register s as =
                    , value s.password] []
         pw2 = input [ on change Register_Password2Changed {val: mempty}
                     , typeP "password"
-                    , name "password"
+                    , name "password2"
                     , value s.password2] []
 
 
@@ -54,5 +54,4 @@ pw2ErrorMess _ = Nothing
 
 withErr :: VTree -> Maybe String -> VTree
 withErr input Nothing = input
-withErr input (Just vali) =
-  span [cl "has-error"] [ input , span [] [vtext vali]]
+withErr input (Just vali) = span [cl "has-error"] [ input , span [] [vtext vali]]
